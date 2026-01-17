@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manitas- Juego</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Poppins',sans-serif;overflow:hidden;}
+video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-1;}
+.overlay{position:fixed;inset:0;background:linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));z-index:0;}
+.container{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;text-align:center;padding:20px;max-width:800px;margin:0 auto;}
+h1{font-size:2rem;margin-bottom:20px;text-shadow:3px 3px 10px rgba(0,0,0,0.8);font-weight:600;letter-spacing:1px;max-height:4rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-overflow:ellipsis;}
+/* Limitar el título (pregunta) a máximo 2 líneas y ajustar tamaño responsivo */
+#question{
+  display:-webkit-box;
+  -webkit-line-clamp:2; /* mostrar como máximo 2 líneas */
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:normal;
+  word-break:break-word;
+  /* Ajuste dinámico de tamaño de fuente para preguntas largas */
+  font-size:clamp(1rem, 2vw, 2.5rem);
+  line-height:1.2;
+  max-height:6.2em;
+  margin-bottom:10px;
+  max-width: 95vw;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.timer-display{font-size:1.5rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.7);margin-bottom:10px;}
+.options{display:flex;flex-direction:column;gap:15px;margin-top:30px;width:100%;max-width:600px;}
+button{padding:15px 30px;border:none;border-radius:12px;background:linear-gradient(45deg, #00bfa5, #00e0b5);color:#fff;font-size:1.2rem;font-weight:600;cursor:pointer;transition:0.3s; box-shadow:0 4px 8px rgba(0,0,0,0.3);text-transform:uppercase;letter-spacing:0.5px;}
+button:hover{background:linear-gradient(45deg, #00e0b5, #00bfa5);transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,0.4);}
+.option-btn{background:black !important;color:white !important;padding:20px 40px !important;box-shadow:0 8px 16px rgba(0,0,0,0.7) !important;transform: perspective(1000px) rotateX(0deg);border-radius:15px;border:2px solid #fff;}
+.option-btn:hover{transform: perspective(1000px) rotateX(-10deg) translateY(-5px);box-shadow:0 12px 24px rgba(0,0,0,0.8) !important;}
+.message{font-size:2rem;font-weight:700;text-shadow:2px 2px 6px rgba(0,0,0,0.7);min-height:40px;flex:1;text-align:left;}
+.progress-bar{width:90%;height:25px;background:#333;border-radius:15px;margin-bottom:30px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,0.5);}
+.progress{height:100%;width:100%;background:linear-gradient(90deg, #00ff8c, #00bfa5);transition:width 0.1s;border-radius:15px;}
+
+.bottom-row{display:flex;justify-content:center;align-items:center;width:100%;max-width:600px;margin-top:20px;}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+</style>
+</head>
+<body>
+
+<video autoplay loop muted id="bgVideo">
+  <source src="2.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<div class="container">
+  <div class="progress-bar">
+    <div class="progress" id="progress"></div>
+  </div>
+  <div class="timer-display" id="timerDisplay">Tiempo: 20s</div>
+  <h1 id="question">Pregunta</h1>
+  <div class="options" id="options"></div>
+  <div class="message" id="message"></div>
+  <div class="bottom-row">
+    <button id="sendBtn">Enviar</button>
+  </div>
+
+</div>
+
+<div id="counter" style="position:absolute;top:20px;right:20px;display:flex;align-items:center;z-index:2;">
+  <img src="23.png" alt="Counter" style="width:80px;height:80px;object-fit:contain;margin-right:10px;">
+  <span id="totalCorrectDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);"></span>
+</div>
+
+<div id="streakCounter" style="position:absolute;top:20px;left:20px;display:flex;align-items:center;z-index:2;">
+  <span id="streakDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);margin-right:10px;"></span>
+  <img src="3.png" alt="Streak Counter" style="width:80px;height:80px;object-fit:contain;">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const questions = [
+  {q: "¿Por qué es importante cuidar las manos?", a: [
+    "Por estética",
+    "Para evitar lesiones",
+    "Para verse limpio",
+    "Para no ensuciar guantes"
+  ], correct: 1},
+
+  {q: "¿Qué lesión puede tener una mano?", a: [
+    "Golpes y cortes",
+    "Dolor de cabeza",
+    "Fatiga visual",
+    "Cansancio"
+  ], correct: 0},
+
+  {q: "¿Qué hábito de higiene es esencial?", a: [
+    "Lavar las manos",
+    "Usar perfume",
+    "Peinarse",
+    "Usar lentes"
+  ], correct: 0},
+
+  {q: "¿Cuándo se lavan las manos?", a: [
+    "Al final del día",
+    "Antes y después de comer",
+    "Una vez por semana",
+    "Nunca"
+  ], correct: 1},
+
+  {q: "¿Por qué evitar anillos y pulseras?", a: [
+    "Se ven mal",
+    "Atraparán suciedad o causan accidentes",
+    "Son caros",
+    "Molestan"
+  ], correct: 1},
+
+  {q: "¿Qué protege de productos químicos?", a: [
+    "Guantes de nitrilo",
+    "Guantes de lana",
+    "Guantes de algodón",
+    "Guantes de cuero"
+  ], correct: 0},
+
+  {q: "¿Qué guantes se usan para electricidad?", a: [
+    "De cuero",
+    "Dieléctricos",
+    "De látex",
+    "De vinilo"
+  ], correct: 1},
+
+  {q: "¿Qué hacer si cae un químico en la mano?", a: [
+    "Ignorarlo",
+    "Enjuagar con agua",
+    "Secarlo con papel",
+    "Cubrirlo con trapo"
+  ], correct: 1},
+
+  {q: "¿Por qué mantener las uñas cortas?", a: [
+    "Por estética",
+    "Para evitar suciedad",
+    "Por costumbre",
+    "Por los guantes"
+  ], correct: 1},
+
+  {q: "¿Qué usar tras lavar las manos seguido?", a: [
+    "Perfume",
+    "Alcohol",
+    "Crema hidratante",
+    "Jabón"
+  ], correct: 2},
+
+  {q: "¿Por qué revisar los guantes antes?", a: [
+    "Por el color",
+    "Para ver si están rotos",
+    "Por el olor",
+    "Para limpiarlos"
+  ], correct: 1},
+
+  {q: "¿Qué hacer si el guante se rompe?", a: [
+    "Seguir usando",
+    "Cambiarlo enseguida",
+    "Pegar con cinta",
+    "Lavarlo"
+  ], correct: 1},
+
+  {q: "¿Qué no hacer con guantes puestos?", a: [
+    "Quitárselos",
+    "Tocar la cara o comida",
+    "Mojarlos",
+    "Doblarlos"
+  ], correct: 1},
+
+  {q: "¿Qué evita una buena higiene de manos?", a: [
+    "Solo gripe",
+    "Infecciones y resfriados",
+    "Dolores musculares",
+    "Ninguna"
+  ], correct: 1},
+
+  {q: "¿Cómo mantener las manos seguras?", a: [
+  "Usando guantes y lavándolas",
+  "Solo con alcohol",
+  "No tocando nada",
+  "Evitando mojarse"
+], correct: 0},
+
+];
+
+const streakPhrases = [
+  "¡Increíble! 🔥 Tres correctas seguidas",
+  "¡Sigue así! 💪 Eres imparable",
+  "¡Excelente racha! 🎉",
+  "¡Wow! 🌟 Tres en fila",
+  "¡Genial! 🏆 Mantén la concentración",
+  "¡Impresionante! 🚀",
+  "¡No te detengas! ⚡",
+  "¡Racha perfecta! 💥",
+  "¡Increíble habilidad! 😎",
+  "¡Eres un maestro del lavado! 🧼",
+  "¡Felicidades! 🎊 Tres seguidas",
+  "¡Vamos! 🔝 Sigue así",
+  "¡Fantástico! ✨",
+  "¡Racha de campeón! 🏅",
+  "¡Súper! 🎯",
+  "¡Maravilloso! 🌈",
+  "¡Excelente trabajo! 💡",
+  "¡Perfecto! 👏 Tres correctas consecutivas",
+  "¡Bravo! 🥳",
+  "¡Sigue rompiéndola! 🔥"
+];
+
+let current = 0;
+let streak = 0;
+let totalCorrect = 0;
+let streakCount = 0;
+let selected = null;
+let timer;
+let timeLeft = 20;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const messageEl = document.getElementById("message");
+const sendBtn = document.getElementById("sendBtn");
+const progressEl = document.getElementById("progress");
+const totalCorrectDisplay = document.getElementById("totalCorrectDisplay");
+const streakDisplay = document.getElementById("streakDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
+
+
+function showQuestion(){
+  if(current >= questions.length){
+    endGame();
+    return;
+  }
+  selected = null;
+  timeLeft = 20;
+  const q = questions[current];
+  questionEl.textContent = (current + 1) + ". " + q.q;
+  optionsEl.innerHTML = "";
+  // Mostrar opciones en su diseño y orden original
+  q.a.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = String.fromCharCode(65 + i) + ". " + opt;
+    btn.classList.add("option-btn");
+    btn.addEventListener("click", () => {
+      selected = i;
+      Array.from(optionsEl.children).forEach(b => {
+        b.style.border = "";
+        b.style.background = "black";
+      });
+      btn.style.border = "3px solid yellow";
+      btn.style.background = "#007bff";
+    });
+    optionsEl.appendChild(btn);
+  });
+  messageEl.textContent = "";
+  progressEl.style.width = "100%";
+  timer = setInterval(updateTimer, 1000 / 60);
+}
+
+function updateTimer(){
+  timeLeft -= 1/60;
+  progressEl.style.width = (timeLeft/20*100)+"%";
+  timerDisplay.textContent = "Tiempo: " + Math.ceil(timeLeft) + "s";
+  if(timeLeft<=0){
+    clearInterval(timer);
+    timeOut();
+  }
+}
+
+function checkAnswer(){
+  clearInterval(timer);
+  const q = questions[current];
+  if(selected === q.correct){
+    new Audio('o.mp3').play();
+    streak++;
+    totalCorrect++;
+    if(streak>0 && streak%3===0){
+      // Hide elements
+      timerDisplay.style.display = 'none';
+      questionEl.style.display = 'none';
+      optionsEl.style.display = 'none';
+      sendBtn.style.display = 'none';
+      progressEl.parentElement.style.display = 'none'; // Hide progress bar
+      // Show message big and centered on screen
+      messageEl.textContent = streakPhrases[Math.floor(Math.random()*streakPhrases.length)];
+      messageEl.style.position = 'fixed';
+      messageEl.style.top = '50%';
+      messageEl.style.left = '50%';
+      messageEl.style.transform = 'translate(-50%, -50%)';
+      messageEl.style.fontSize = '4rem';
+      messageEl.style.textAlign = 'center';
+      messageEl.style.zIndex = '20';
+      messageEl.style.animation = 'fadeIn 0.5s ease-in';
+      showFloatingImage('3.png', 'left');
+      streakCount++;
+      confetti({particleCount:800,spread:360,colors:['#00ff00','#00bfa5'],gravity:0.1,scalar:1.2});
+      // After 4 seconds, show next question
+      setTimeout(() => {
+        messageEl.textContent = "";
+        messageEl.style.position = '';
+        messageEl.style.top = '';
+        messageEl.style.left = '';
+        messageEl.style.transform = '';
+        messageEl.style.fontSize = '';
+        messageEl.style.textAlign = '';
+        messageEl.style.zIndex = '';
+        messageEl.style.animation = '';
+        // Show elements back
+        timerDisplay.style.display = '';
+        questionEl.style.display = '';
+        optionsEl.style.display = '';
+        sendBtn.style.display = '';
+        progressEl.parentElement.style.display = '';
+        current++;
+        totalCorrectDisplay.textContent = totalCorrect;
+        streakDisplay.textContent = streakCount;
+        showQuestion();
+      }, 4000);
+      return; // Exit early to avoid the general setTimeout
+    }
+    showFloatingImage('9.png', 'right');
+    confetti({particleCount:500,spread:360,colors:['#00ff00','#00bfa5'],gravity:0.1,scalar:1.2});
+  } else {
+    new Audio('q.mp3').play();
+    showFloatingImage('8.png', 'left');
+    streak=0;
+  }
+  current++;
+  totalCorrectDisplay.textContent = totalCorrect;
+  streakDisplay.textContent = streakCount;
+  setTimeout(() => {
+    messageEl.textContent = "";
+    showQuestion();
+  }, 5000);
+}
+
+function showFloatingImage(src, side){
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.position = 'absolute';
+  img.style.width = '150px';
+  img.style.height = '150px';
+  img.style.objectFit = 'contain';
+  img.style.zIndex = '10';
+  img.style.pointerEvents = 'none';
+  img.style.animation = 'floatUp 1s ease-out forwards';
+  img.style.top = '50%';
+  img.style.transform = 'translateY(-50%)';
+
+  if(side === 'right'){
+    img.style.right = '20px';
+  } else {
+    img.style.left = '20px';
+  }
+
+  document.body.appendChild(img);
+  setTimeout(() => {
+    document.body.removeChild(img);
+  }, 1000);
+}
+
+
+
+function timeOut(){
+  // Pasar a la siguiente pregunta sin game over
+  current++;
+  setTimeout(showQuestion, 500);
+}
+
+function endGame(){
+  // Reiniciar el juego al terminar todas las preguntas
+  current = 0;
+  streak = 0;
+  totalCorrect = 0;
+  streakCount = 0;
+  shuffle(questions);
+  showQuestion();
+}
+
+sendBtn.addEventListener("click", checkAnswer);
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+// Barajar preguntas una sola vez al cargar la página
+shuffle(questions);
+
+
+
+// Mostrar la primera pregunta (ya barajada)
+showQuestion();
+
+
+totalCorrectDisplay.textContent = totalCorrect;
+streakDisplay.textContent = streakCount;
+// Asegurar que el video se repita al terminar
+const bgVideo = document.getElementById("bgVideo");
+bgVideo.addEventListener('ended', function() {
+  bgVideo.play();
+});
+
+// Enable sound on user interaction
+const video = document.getElementById("bgVideo");
+function enableSound() {
+  video.muted = false;
+  video.volume = 0.5;
+  document.removeEventListener("click", enableSound);
+  document.removeEventListener("keydown", enableSound);
+}
+document.addEventListener("click", enableSound);
+document.addEventListener("keydown", enableSound);
+</script>
+
+</body>
+</html>

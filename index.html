@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
   <title>MANITAS - Juego de Higiene de Manos</title>
   
   <!-- Precarga de recursos críticos -->
@@ -139,6 +140,115 @@
       // Mostrar fondo alternativo
       document.body.style.background = 'linear-gradient(135deg, #00bfa5, #008c7a)';
     });
+=======
+  <title>MANITAS</title>
+  <style>
+    /* Quitar márgenes y asegurar el video de fondo */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Video de fondo */
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* Contenido centrado sobre el video */
+    .contenido {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: white;
+      top: 40%;
+      transform: translateY(-40%);
+    }
+
+    h1 {
+      font-size: 42px;
+      text-shadow: 2px 2px 8px black;
+    }
+
+    button {
+      background: linear-gradient(145deg, #73ff00, #1e853d);
+      color: white;
+      border: none;
+      padding: 20px 50px;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2);
+      margin-top: 30px;
+      position: relative;
+      transform: perspective(1000px) rotateX(0deg);
+      animation: pulse 2s infinite;
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, #1100ff, #0b00aa);
+      transform: perspective(1000px) rotateX(-10deg) translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.5), inset 0 4px 8px rgba(255,255,255,0.3);
+    }
+
+    button:active {
+      transform: perspective(1000px) rotateX(-5deg) translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Video de fondo -->
+  <video autoplay loop playsinline muted id="videoFondo">
+    <source src="1.mp4" type="video/mp4">
+    Tu navegador no soporta el video.
+  </video>
+
+  <!-- Contenido sobre el video -->
+  <div class="contenido">
+    <h1>MANITAS</h1>
+    <button onclick="iniciarJuego()">Iniciar Juego</button>
+  </div>
+
+  <script>
+    function iniciarJuego() {
+      const video = document.getElementById('videoFondo');
+      video.muted = false;
+      video.volume = 0.3; // Volumen más bajo para la página inicial
+      video.play();
+      window.location.href = "game.html";
+    }
+
+    const videoFondo = document.getElementById('videoFondo');
+    videoFondo.addEventListener('ended', function() {
+      videoFondo.play();
+    });
+
+    function enableSound() {
+      const video = document.getElementById('videoFondo');
+      video.muted = false;
+      video.volume = 0.3;
+      document.removeEventListener('click', enableSound);
+      document.removeEventListener('keydown', enableSound);
+    }
+    document.addEventListener('click', enableSound);
+    document.addEventListener('keydown', enableSound);
+>>>>>>> b246c7419bb2345f7f299a8dba9cfc226c2ebcbb
   </script>
 </body>
 </html>

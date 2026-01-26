@@ -1,0 +1,447 @@
+/* ============================================
+   ESTILOS PÁGINA DEL JUEGO - game.html
+   ============================================ */
+
+/* Layout principal del juego */
+.game-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Video de fondo del juego */
+.game-video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: var(--z-background);
+  /* Optimizaciones */
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  filter: brightness(0.9);
+}
+
+.game-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.2)
+  );
+  z-index: calc(var(--z-background) + 1);
+  pointer-events: none;
+}
+
+/* Contenedor del contenido del juego */
+.game-content {
+  position: relative;
+  z-index: var(--z-default);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-white);
+  text-align: center;
+  padding: var(--space-md);
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Performance */
+  will-change: transform, opacity;
+  contain: content;
+}
+
+/* Barra de progreso del tiempo */
+.game-progress-container {
+  width: 90%;
+  max-width: 800px;
+  margin-bottom: var(--space-xl);
+  animation: fade-in 0.5s ease-out;
+}
+
+.game-progress-bar {
+  width: 100%;
+  height: 25px;
+  background: var(--color-gray-dark);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-inner);
+  position: relative;
+  /* Evitar repaints */
+  contain: layout style;
+}
+
+.game-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-success),
+    var(--color-primary)
+  );
+  border-radius: var(--border-radius-lg);
+  /* Solo animar width */
+  transition: width 0.1s linear;
+  will-change: width;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de brillo en la barra de progreso */
+.game-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Temporizador */
+.game-timer {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  margin-bottom: var(--space-lg);
+  color: var(--color-white);
+  animation: fade-in 0.5s ease-out 0.2s both;
+}
+
+/* Área de la pregunta */
+.game-question-container {
+  width: 95%;
+  max-width: 900px;
+  margin-bottom: var(--space-lg);
+  animation: fade-in 0.5s ease-out 0.4s both;
+}
+
+.game-question {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+  line-height: 1.3;
+  /* Manejo de texto largo */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  hyphens: auto;
+  max-height: 7.5em;
+  padding: 0 var(--space-sm);
+}
+
+/* Contenedor de opciones */
+.game-options-container {
+  width: 100%;
+  max-width: 700px;
+  margin: var(--space-lg) 0;
+  animation: fade-in 0.5s ease-out 0.6s both;
+}
+
+.game-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+/* Botones de opción */
+.game-option-btn {
+  background: var(--color-black);
+  color: var(--color-white);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  padding: var(--option-btn-padding);
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--color-white);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* Efectos 3D */
+  transform: perspective(1000px) rotateX(0deg);
+  box-shadow: var(--shadow-lg);
+  /* Performance */
+  will-change: transform, box-shadow, border-color;
+  /* Texto largo */
+  text-align: left;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.game-option-btn:hover {
+  background: linear-gradient(
+    145deg,
+    var(--color-gray-dark),
+    var(--color-black)
+  );
+  transform: perspective(1000px) rotateX(-8deg) translateY(-3px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-warning);
+}
+
+.game-option-btn.selected {
+  background: linear-gradient(
+    145deg,
+    #007bff,
+    #0056b3
+  );
+  border-color: var(--color-warning);
+  box-shadow: 
+    0 0 15px rgba(255, 204, 0, 0.5),
+    var(--shadow-xl);
+}
+
+.game-option-btn.correct {
+  background: linear-gradient(
+    145deg,
+    var(--color-success),
+    var(--color-success-dark)
+  );
+  border-color: var(--color-success);
+  animation: pulse-border 1.5s infinite;
+}
+
+.game-option-btn.incorrect {
+  background: linear-gradient(
+    145deg,
+    var(--color-danger),
+    var(--color-danger-dark)
+  );
+  border-color: var(--color-danger);
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Área de mensajes */
+.game-message-container {
+  min-height: 60px;
+  margin: var(--space-md) 0;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-message {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  padding: var(--space-sm);
+  border-radius: var(--border-radius-md);
+  width: 100%;
+  animation: fade-in 0.3s ease-out;
+}
+
+.game-message.correct {
+  color: var(--color-success);
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.game-message.incorrect {
+  color: var(--color-danger);
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.game-message.warning {
+  color: var(--color-warning);
+  background: rgba(255, 204, 0, 0.1);
+}
+
+.game-message.streak {
+  color: var(--color-white);
+  font-size: var(--font-size-2xl);
+  animation: 
+    fade-in 0.5s ease-out,
+    text-glow 1s infinite;
+  background: linear-gradient(
+    45deg,
+    rgba(0, 191, 165, 0.3),
+    rgba(0, 224, 181, 0.3)
+  );
+  padding: var(--space-lg);
+  border-radius: var(--border-radius-xl);
+}
+
+/* Botón de enviar */
+.game-send-btn-container {
+  margin-top: var(--space-lg);
+  animation: fade-in 0.5s ease-out 0.8s both;
+}
+
+.game-send-btn {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary),
+    var(--color-primary-light)
+  );
+  color: var(--color-white);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-md);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 200px;
+  min-height: 60px;
+  /* Performance */
+  will-change: transform, background;
+}
+
+.game-send-btn:hover {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-light),
+    var(--color-primary)
+  );
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.game-send-btn:active {
+  transform: translateY(-1px);
+  transition: transform var(--transition-fast);
+}
+
+.game-send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Contadores (puntaje y racha) */
+.game-counter {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  z-index: var(--z-overlay);
+  background: rgba(0, 0, 0, 0.5);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius-md);
+  backdrop-filter: blur(5px);
+  animation: fade-in 0.5s ease-out;
+}
+
+.game-score-counter {
+  top: var(--space-xl);
+  right: var(--space-xl);
+}
+
+.game-streak-counter {
+  top: var(--space-xl);
+  left: var(--space-xl);
+}
+
+.game-counter-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-right: var(--space-sm);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.game-counter-value {
+  color: var(--color-white);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Pantalla de Game Over */
+.game-over-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-modal);
+  animation: fade-in 0.5s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+.game-over-content {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.9)
+  );
+  padding: var(--space-2xl);
+  border-radius: var(--border-radius-xl);
+  text-align: center;
+  max-width: 600px;
+  width: 90%;
+  border: 3px solid var(--color-danger);
+  box-shadow: 
+    0 0 40px rgba(255, 0, 0, 0.3),
+    var(--shadow-xl);
+  animation: bounce-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.game-over-title {
+  color: var(--color-danger);
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--space-lg);
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.game-over-stats {
+  color: var(--color-white);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-xl);
+  line-height: 1.8;
+}
+
+.game-over-stats span {
+  color: var(--color-warning);
+  font-weight: 700;
+}
+
+.game-over-btn {
+  background: linear-gradient(
+    45deg,
+    var(--color-danger),
+    #ff8800
+  );
+  color: var(--color-white);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  padding: var(--space-md) var(--space-xl);
+  border-radius:

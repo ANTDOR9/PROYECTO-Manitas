@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANITAS - Juego de Higiene de Manos</title>
+  
+  <!-- Precarga de recursos críticos -->
+  <link rel="preload" href="css/base.css" as="style">
+  <link rel="preload" href="css/variables.css" as="style">
+  <link rel="preload" href="css/animations.css" as="style">
+  <link rel="preload" href="css/home.css" as="style">
+  <link rel="preload" href="assets/videos/1.mp4" as="video" type="video/mp4">
+  
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS modular -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/home.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  
+  <!-- Meta tags para SEO y redes sociales -->
+  <meta name="description" content="Juego educativo sobre higiene y seguridad de manos. Aprende sobre lavado de manos, uso de guantes y prevención de accidentes.">
+  <meta name="keywords" content="higiene, manos, seguridad, juego, educativo, lavado de manos, guantes">
+  <meta name="author" content="MANITAS Game">
+  <meta property="og:title" content="MANITAS - Juego de Higiene de Manos">
+  <meta property="og:description" content="Juego educativo sobre higiene y seguridad de manos">
+  <meta property="og:image" content="assets/images/og-image.jpg">
+  <meta property="og:type" content="website">
+</head>
+<body>
+  <div class="home-container">
+    <!-- Video de fondo optimizado -->
+    <video 
+      class="home-video-bg" 
+      id="videoFondo"
+      autoplay 
+      loop 
+      muted 
+      playsinline
+      preload="auto"
+      aria-label="Video de fondo con animación de burbujas de jabón"
+    >
+      <source src="assets/videos/1.mp4" type="video/mp4">
+      <source src="assets/videos/1.webm" type="video/webm">
+      Tu navegador no soporta videos HTML5.
+    </video>
+    
+    <!-- Overlay para mejor contraste -->
+    <div class="home-video-overlay" aria-hidden="true"></div>
+    
+    <!-- Contenido principal -->
+    <main class="home-content" role="main">
+      <h1 class="home-title" aria-label="MANITAS - Juego de Higiene de Manos">
+        MANITAS
+      </h1>
+      
+      <button 
+        class="home-start-btn" 
+        onclick="iniciarJuego()"
+        aria-label="Comenzar juego de higiene de manos"
+      >
+        Iniciar Juego
+      </button>
+      
+      <!-- Información adicional (opcional) -->
+      <div class="home-info" aria-label="Información del juego" hidden>
+        <p>Juego educativo sobre higiene y seguridad de manos</p>
+        <p>15 preguntas | 3 vidas | Múltiples niveles</p>
+      </div>
+    </main>
+    
+    <!-- Footer minimalista -->
+    <footer class="home-footer" role="contentinfo" aria-label="Información del juego">
+      <small>Juego educativo - Versión 1.0</small>
+    </footer>
+  </div>
+
+  <!-- Scripts (mínimos en la página inicial) -->
+  <script>
+    // Solo el código esencial para la página inicial
+    function iniciarJuego() {
+      const video = document.getElementById('videoFondo');
+      
+      // Asegurar que el video tenga sonido
+      video.muted = false;
+      video.volume = 0.3;
+      
+      // Intentar reproducir por si estaba pausado
+      video.play().catch(e => {
+        console.log('Video playback error:', e);
+      });
+      
+      // Redirigir con pequeño delay para que el sonido se active
+      setTimeout(() => {
+        window.location.href = "game.html";
+      }, 300);
+    }
+    
+    // Habilitar sonido en la primera interacción
+    function enableSound() {
+      const video = document.getElementById('videoFondo');
+      if (video.muted) {
+        video.muted = false;
+        video.volume = 0.3;
+      }
+      
+      // Remover listeners después de la primera interacción
+      document.removeEventListener('click', enableSound);
+      document.removeEventListener('keydown', enableSound);
+      document.removeEventListener('touchstart', enableSound);
+    }
+    
+    // Añadir listeners para múltiples tipos de interacción
+    document.addEventListener('click', enableSound);
+    document.addEventListener('keydown', enableSound);
+    document.addEventListener('touchstart', enableSound);
+    
+    // Asegurar que el video se repita
+    const videoFondo = document.getElementById('videoFondo');
+    videoFondo.addEventListener('ended', function() {
+      videoFondo.currentTime = 0;
+      videoFondo.play();
+    });
+    
+    // Manejar carga del video
+    videoFondo.addEventListener('loadeddata', function() {
+      this.classList.remove('loading');
+      this.classList.add('loaded');
+    });
+    
+    videoFondo.addEventListener('error', function() {
+      console.error('Error cargando video de fondo');
+      // Mostrar fondo alternativo
+      document.body.style.background = 'linear-gradient(135deg, #00bfa5, #008c7a)';
+    });
+  </script>
+</body>
+</html>

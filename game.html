@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANITAS - Juego en Curso</title>
+  
+  <!-- Precarga de recursos críticos -->
+  <link rel="preload" href="css/base.css" as="style">
+  <link rel="preload" href="css/variables.css" as="style">
+  <link rel="preload" href="css/animations.css" as="style">
+  <link rel="preload" href="css/game.css" as="style">
+  <link rel="preload" href="js/main.js" as="script">
+  <link rel="preload" href="assets/videos/2.mp4" as="video" type="video/mp4">
+  
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS modular -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/game.css">
+  
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  
+  <!-- Meta tags -->
+  <meta name="description" content="Juego educativo sobre higiene y seguridad de manos - ¡Pon a prueba tus conocimientos!">
+</head>
+<body class="game-container" aria-label="Juego de higiene de manos en curso">
+  <!-- Video de fondo del juego -->
+  <video 
+    class="game-video-bg" 
+    id="bgVideo"
+    autoplay 
+    loop 
+    muted 
+    playsinline
+    preload="auto"
+    aria-hidden="true"
+  >
+    <source src="assets/videos/2.mp4" type="video/mp4">
+    <source src="assets/videos/2.webm" type="video/webm">
+  </video>
+  
+  <!-- Overlay para contraste -->
+  <div class="game-video-overlay" aria-hidden="true"></div>
+  
+  <!-- Contadores de puntuación y racha -->
+  <div class="game-counter game-score-counter" aria-label="Puntaje actual">
+    <img src="assets/images/23.png" alt="Icono de puntaje" class="game-counter-icon">
+    <span id="totalCorrectDisplay" class="game-counter-value">0</span>
+  </div>
+  
+  <div class="game-counter game-streak-counter" aria-label="Racha actual">
+    <span id="streakDisplay" class="game-counter-value">0</span>
+    <img src="assets/images/3.png" alt="Icono de racha" class="game-counter-icon">
+  </div>
+  
+  <!-- Contador de vidas (se creará dinámicamente) -->
+  <div id="livesDisplay" class="game-lives-display" aria-label="Vidas restantes" hidden></div>
+  
+  <!-- Contador de preguntas (se creará dinámicamente) -->
+  <div id="questionCounter" class="game-question-counter" aria-label="Progreso de preguntas" hidden></div>
+  
+  <!-- Contenedor principal del juego -->
+  <div class="container" role="main">
+    <!-- Barra de progreso del tiempo -->
+    <div class="game-progress-container" aria-label="Tiempo restante">
+      <div class="game-progress-bar">
+        <div class="game-progress-fill" id="progress" role="progressbar" 
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Temporizador -->
+    <div class="game-timer" id="timerDisplay" aria-live="polite">
+      Tiempo: 20s
+    </div>
+    
+    <!-- Pregunta actual -->
+    <h1 class="game-question" id="question" aria-live="polite">
+      Cargando pregunta...
+    </h1>
+    
+    <!-- Opciones de respuesta -->
+    <div class="game-options-container" role="group" aria-label="Opciones de respuesta">
+      <div class="game-options-grid" id="options">
+        <!-- Las opciones se cargarán dinámicamente -->
+      </div>
+    </div>
+    
+    <!-- Mensajes de feedback -->
+    <div class="game-message-container" aria-live="assertive">
+      <div class="game-message" id="message"></div>
+    </div>
+    
+    <!-- Botón de enviar -->
+    <div class="game-send-btn-container">
+      <button 
+        class="game-send-btn" 
+        id="sendBtn"
+        aria-label="Enviar respuesta"
+      >
+        Enviar Respuesta
+      </button>
+    </div>
+  </div>
+  
+  <!-- Botones de control (se crearán dinámicamente) -->
+  <button id="pauseBtn" class="game-control-btn" aria-label="Pausar juego" hidden></button>
+  <button id="soundToggle" class="game-control-btn" aria-label="Alternar sonido" hidden></button>
+  
+  <!-- Modal de game over/victoria (se creará dinámicamente) -->
+  
+  <!-- Scripts modulares -->
+  <script type="module" src="js/main.js"></script>
+  
+  <!-- Script inline para inicialización básica -->
+  <script>
+    // Configuración inicial básica mientras carga el módulo principal
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mostrar elementos ocultos
+      const livesDisplay = document.getElementById('livesDisplay');
+      const questionCounter = document.getElementById('questionCounter');
+      const pauseBtn = document.getElementById('pauseBtn');
+      const soundToggle = document.getElementById('soundToggle');
+      
+      if (livesDisplay) {
+        livesDisplay.hidden = false;
+        livesDisplay.textContent = '❤️❤️❤️';
+      }
+      
+      if (questionCounter) {
+        questionCounter.hidden = false;
+        questionCounter.textContent = '0/15';
+      }
+      
+      if (pauseBtn) {
+        pauseBtn.hidden = false;
+        pauseBtn.innerHTML = '⏸️';
+        pauseBtn.title = 'Pausar juego';
+      }
+      
+      if (soundToggle) {
+        soundToggle.hidden = false;
+        soundToggle.innerHTML = '🔊';
+        soundToggle.title = 'Alternar sonido';
+      }
+      
+      // Configurar video de fondo
+      const bgVideo = document.getElementById('bgVideo');
+      if (bgVideo) {
+        bgVideo.volume = 0.3;
+        
+        // Intentar reproducir inmediatamente
+        bgVideo.play().catch(function(error) {
+          console.log('Autoplay blocked:', error);
+          
+          // Reproducir en la primera interacción del usuario
+          const playVideo = function() {
+            bgVideo.play().catch(() => {});
+            document.removeEventListener('click', playVideo);
+            document.removeEventListener('keydown', playVideo);
+          };
+          
+          document.addEventListener('click', playVideo);
+          document.addEventListener('keydown', playVideo);
+        });
+        
+        // Repetir video automáticamente
+        bgVideo.addEventListener('ended', function() {
+          this.currentTime = 0;
+          this.play();
+        });
+      }
+      
+      // Habilitar sonido en primera interacción
+      function enableSound() {
+        if (bgVideo && bgVideo.muted) {
+          bgVideo.muted = false;
+          bgVideo.volume = 0.5;
+        }
+        
+        // También habilitar sonido del juego
+        if (window.audioManager) {
+          window.audioManager.setEnabled(true);
+        }
+        
+        document.removeEventListener('click', enableSound);
+        document.removeEventListener('keydown', enableSound);
+      }
+      
+      document.addEventListener('click', enableSound);
+      document.addEventListener('keydown', enableSound);
+      
+      // Mostrar mensaje de carga
+      const messageEl = document.getElementById('message');
+      if (messageEl) {
+        messageEl.textContent = 'Cargando juego...';
+        messageEl.className = 'game-message info';
+      }
+    });
+    
+    // Función global para volver al inicio
+    window.volverAlInicio = function() {
+      window.location.href = 'index.html';
+    };
+  </script>
+</body>
+</html>

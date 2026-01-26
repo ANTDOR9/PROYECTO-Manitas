@@ -88,27 +88,23 @@
   </div>
 
   <script>
-    // El video ya tiene sonido desde el inicio, pero navegadores pueden bloquearlo
     function iniciarJuego() {
       const video = document.getElementById('videoFondo');
-      video.muted = false; // asegurar que no esté silenciado
-      video.volume = 0.5; // ajustar volumen
-      video.play(); // asegurar que siga reproduciéndose
-      // Redirigir a la página del juego inmediatamente
+      video.muted = false;
+      video.volume = 0.3; // Volumen más bajo para la página inicial
+      video.play();
       window.location.href = "game.html";
     }
 
-    // Asegurar que el video se repita al terminar
     const videoFondo = document.getElementById('videoFondo');
     videoFondo.addEventListener('ended', function() {
       videoFondo.play();
     });
 
-    // Habilitar sonido en interacción del usuario
     function enableSound() {
       const video = document.getElementById('videoFondo');
       video.muted = false;
-      video.volume = 0.5;
+      video.volume = 0.3;
       document.removeEventListener('click', enableSound);
       document.removeEventListener('keydown', enableSound);
     }

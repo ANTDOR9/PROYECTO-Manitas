@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manitas- Juego</title>
+<title>Manitas - Juego</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -12,16 +12,14 @@ video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-inde
 .overlay{position:fixed;inset:0;background:linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));z-index:0;}
 .container{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;text-align:center;padding:20px;max-width:800px;margin:0 auto;}
 h1{font-size:2rem;margin-bottom:20px;text-shadow:3px 3px 10px rgba(0,0,0,0.8);font-weight:600;letter-spacing:1px;max-height:4rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-overflow:ellipsis;}
-/* Limitar el título (pregunta) a máximo 2 líneas y ajustar tamaño responsivo */
 #question{
   display:-webkit-box;
-  -webkit-line-clamp:2; /* mostrar como máximo 2 líneas */
+  -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:normal;
   word-break:break-word;
-  /* Ajuste dinámico de tamaño de fuente para preguntas largas */
   font-size:clamp(1rem, 2vw, 2.5rem);
   line-height:1.2;
   max-height:6.2em;
@@ -53,6 +51,37 @@ button:hover{background:linear-gradient(45deg, #00e0b5, #00bfa5);transform:trans
   100% { opacity: 1; }
 }
 
+.game-over {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  z-index: 100;
+  border: 3px solid #ff0000;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.game-over h2 {
+  color: #ff0000;
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.game-over p {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.game-over button {
+  font-size: 1.5rem;
+  padding: 15px 40px;
+  background: linear-gradient(45deg, #ff0000, #ff8800);
+}
 </style>
 </head>
 <body>
@@ -73,127 +102,160 @@ button:hover{background:linear-gradient(45deg, #00e0b5, #00bfa5);transform:trans
   <div class="bottom-row">
     <button id="sendBtn">Enviar</button>
   </div>
-
 </div>
 
 <div id="counter" style="position:absolute;top:20px;right:20px;display:flex;align-items:center;z-index:2;">
   <img src="23.png" alt="Counter" style="width:80px;height:80px;object-fit:contain;margin-right:10px;">
-  <span id="totalCorrectDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);"></span>
+  <span id="totalCorrectDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);">0</span>
 </div>
 
 <div id="streakCounter" style="position:absolute;top:20px;left:20px;display:flex;align-items:center;z-index:2;">
-  <span id="streakDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);margin-right:10px;"></span>
+  <span id="streakDisplay" style="color:#fff;font-size:2rem;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,0.8);margin-right:10px;">0</span>
   <img src="3.png" alt="Streak Counter" style="width:80px;height:80px;object-fit:contain;">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
 const questions = [
-  {q: "¿Por qué es importante cuidar las manos?", a: [
-    "Por estética",
-    "Para evitar lesiones",
-    "Para verse limpio",
-    "Para no ensuciar guantes"
-  ], correct: 1},
-
-  {q: "¿Qué lesión puede tener una mano?", a: [
-    "Golpes y cortes",
-    "Dolor de cabeza",
-    "Fatiga visual",
-    "Cansancio"
+  {q: "¿Por qué es importante lavarse las manos?", a: [
+    "Para eliminar gérmenes",
+    "Porque huele bien",
+    "Porque lo dice la mamá",
+    "Para gastar jabón"
   ], correct: 0},
-
-  {q: "¿Qué hábito de higiene es esencial?", a: [
-    "Lavar las manos",
-    "Usar perfume",
-    "Peinarse",
-    "Usar lentes"
+  
+  {q: "¿Cuándo debemos lavarnos las manos?", a: [
+    "Antes de comer",
+    "Solo por la mañana",
+    "Cuando nos acordemos",
+    "Una vez al día"
   ], correct: 0},
-
-  {q: "¿Cuándo se lavan las manos?", a: [
-    "Al final del día",
-    "Antes y después de comer",
-    "Una vez por semana",
-    "Nunca"
-  ], correct: 1},
-
-  {q: "¿Por qué evitar anillos y pulseras?", a: [
-    "Se ven mal",
-    "Atraparán suciedad o causan accidentes",
-    "Son caros",
-    "Molestan"
-  ], correct: 1},
-
-  {q: "¿Qué protege de productos químicos?", a: [
-    "Guantes de nitrilo",
-    "Guantes de lana",
-    "Guantes de algodón",
-    "Guantes de cuero"
-  ], correct: 0},
-
-  {q: "¿Qué guantes se usan para electricidad?", a: [
-    "De cuero",
-    "Dieléctricos",
-    "De látex",
-    "De vinilo"
-  ], correct: 1},
-
-  {q: "¿Qué hacer si cae un químico en la mano?", a: [
-    "Ignorarlo",
-    "Enjuagar con agua",
-    "Secarlo con papel",
-    "Cubrirlo con trapo"
-  ], correct: 1},
-
-  {q: "¿Por qué mantener las uñas cortas?", a: [
-    "Por estética",
-    "Para evitar suciedad",
-    "Por costumbre",
-    "Por los guantes"
-  ], correct: 1},
-
-  {q: "¿Qué usar tras lavar las manos seguido?", a: [
+  
+  {q: "¿Qué se usa para lavar las manos?", a: [
+    "Jabón y agua",
+    "Solo agua",
     "Perfume",
-    "Alcohol",
+    "Alcohol solo"
+  ], correct: 0},
+  
+  {q: "¿Cuánto tiempo debe durar el lavado?", a: [
+    "20 segundos",
+    "5 segundos",
+    "1 minuto",
+    "10 segundos"
+  ], correct: 0},
+  
+  {q: "¿Qué protegen los guantes?", a: [
+    "La piel de productos químicos",
+    "Del frío solamente",
+    "Para verse elegante",
+    "De la lluvia"
+  ], correct: 0},
+  
+  {q: "¿Qué hacer si nos cortamos la mano?", a: [
+    "Lavar y desinfectar",
+    "Ignorarlo",
+    "Poner alcohol directo",
+    "Cubrir sin lavar"
+  ], correct: 0},
+  
+  {q: "¿Qué evitar al trabajar con herramientas?", a: [
+    "Usar guantes rotos",
+    "Lavarse después",
+    "Usar protección",
+    "Revisar las herramientas"
+  ], correct: 0},
+  
+  {q: "¿Por qué mantener las uñas cortas?", a: [
+    "Para evitar acumular suciedad",
+    "Por moda",
+    "Por comodidad",
+    "Para pintarlas mejor"
+  ], correct: 0},
+  
+  {q: "¿Qué usar después de lavar mucho las manos?", a: [
     "Crema hidratante",
-    "Jabón"
-  ], correct: 2},
-
-  {q: "¿Por qué revisar los guantes antes?", a: [
-    "Por el color",
+    "Alcohol puro",
+    "Talco",
+    "Perfume"
+  ], correct: 0},
+  
+  {q: "¿Qué hacer si cae producto químico en la piel?", a: [
+    "Lavar con agua abundante",
+    "Secar rápido",
+    "Frotar con trapo",
+    "Poner más producto"
+  ], correct: 0},
+  
+  {q: "¿Qué tipo de guantes usar para limpiar?", a: [
+    "Guantes de goma",
+    "Guantes de lana",
+    "Guantes de cuero",
+    "Guantes de tela"
+  ], correct: 0},
+  
+  {q: "¿Por qué revisar los guantes antes de usar?", a: [
     "Para ver si están rotos",
-    "Por el olor",
-    "Para limpiarlos"
-  ], correct: 1},
-
-  {q: "¿Qué hacer si el guante se rompe?", a: [
-    "Seguir usando",
-    "Cambiarlo enseguida",
-    "Pegar con cinta",
-    "Lavarlo"
-  ], correct: 1},
-
-  {q: "¿Qué no hacer con guantes puestos?", a: [
-    "Quitárselos",
-    "Tocar la cara o comida",
-    "Mojarlos",
-    "Doblarlos"
-  ], correct: 1},
-
-  {q: "¿Qué evita una buena higiene de manos?", a: [
-    "Solo gripe",
-    "Infecciones y resfriados",
-    "Dolores musculares",
-    "Ninguna"
-  ], correct: 1},
-
-  {q: "¿Cómo mantener las manos seguras?", a: [
-  "Usando guantes y lavándolas",
-  "Solo con alcohol",
-  "No tocando nada",
-  "Evitando mojarse"
-], correct: 0},
-
+    "Para ver el color",
+    "Para olerlos",
+    "Para ajustarlos"
+  ], correct: 0},
+  
+  {q: "¿Qué es una infección en las manos?", a: [
+    "Cuando entran gérmenes",
+    "Cuando se ponen rojas",
+    "Cuando sudan",
+    "Cuando se ponen frías"
+  ], correct: 0},
+  
+  {q: "¿Cómo prevenir infecciones?", a: [
+    "Lavado correcto de manos",
+    "Usar perfume",
+    "Usar anillos",
+    "No tocar nada"
+  ], correct: 0},
+  
+  {q: "¿Qué no hacer con las manos sucias?", a: [
+    "Tocar la cara",
+    "Lavarlas",
+    "Usar guantes",
+    "Secarlas"
+  ], correct: 0},
+  
+  {q: "¿Cuál es el paso final al lavar?", a: [
+    "Secar con toalla limpia",
+    "Dejar secar al aire",
+    "Sacudir las manos",
+    "Frotar en la ropa"
+  ], correct: 0},
+  
+  {q: "¿Qué hacer si no hay agua y jabón?", a: [
+    "Usar gel desinfectante",
+    "No lavarse",
+    "Usar perfume",
+    "Limpiar en la ropa"
+  ], correct: 0},
+  
+  {q: "¿Por qué usar crema para manos?", a: [
+    "Para evitar que se resequen",
+    "Para oler bien",
+    "Por color",
+    "Para brillar"
+  ], correct: 0},
+  
+  {q: "¿Qué indica una buena higiene?", a: [
+    "Manos limpias y cuidadas",
+    "Manos con anillos",
+    "Uñas largas",
+    "Manos perfumadas"
+  ], correct: 0},
+  
+  {q: "¿Qué hacer con heridas pequeñas?", a: [
+    "Lavar y cubrir",
+    "Ignorar",
+    "Poner alcohol directo",
+    "Dejar al aire"
+  ], correct: 0}
 ];
 
 const streakPhrases = [
@@ -201,22 +263,7 @@ const streakPhrases = [
   "¡Sigue así! 💪 Eres imparable",
   "¡Excelente racha! 🎉",
   "¡Wow! 🌟 Tres en fila",
-  "¡Genial! 🏆 Mantén la concentración",
-  "¡Impresionante! 🚀",
-  "¡No te detengas! ⚡",
-  "¡Racha perfecta! 💥",
-  "¡Increíble habilidad! 😎",
-  "¡Eres un maestro del lavado! 🧼",
-  "¡Felicidades! 🎊 Tres seguidas",
-  "¡Vamos! 🔝 Sigue así",
-  "¡Fantástico! ✨",
-  "¡Racha de campeón! 🏅",
-  "¡Súper! 🎯",
-  "¡Maravilloso! 🌈",
-  "¡Excelente trabajo! 💡",
-  "¡Perfecto! 👏 Tres correctas consecutivas",
-  "¡Bravo! 🥳",
-  "¡Sigue rompiéndola! 🔥"
+  "¡Genial! 🏆 Mantén la concentración"
 ];
 
 let current = 0;
@@ -224,8 +271,11 @@ let streak = 0;
 let totalCorrect = 0;
 let streakCount = 0;
 let selected = null;
-let timer;
+let timer = null;
 let timeLeft = 20;
+let gameOver = false;
+let incorrectCount = 0;
+const MAX_INCORRECT = 3;
 
 const questionEl = document.getElementById("question");
 const optionsEl = document.getElementById("options");
@@ -236,23 +286,32 @@ const totalCorrectDisplay = document.getElementById("totalCorrectDisplay");
 const streakDisplay = document.getElementById("streakDisplay");
 const timerDisplay = document.getElementById("timerDisplay");
 
-
-function showQuestion(){
-  if(current >= questions.length){
+function showQuestion() {
+  if (gameOver) return;
+  
+  if (current >= questions.length) {
     endGame();
     return;
   }
+  
+  // Limpiar temporizador anterior
+  if (timer) {
+    clearInterval(timer);
+  }
+  
   selected = null;
   timeLeft = 20;
   const q = questions[current];
   questionEl.textContent = (current + 1) + ". " + q.q;
   optionsEl.innerHTML = "";
-  // Mostrar opciones en su diseño y orden original
+  
+  // Mostrar opciones
   q.a.forEach((opt, i) => {
     const btn = document.createElement("button");
     btn.textContent = String.fromCharCode(65 + i) + ". " + opt;
     btn.classList.add("option-btn");
     btn.addEventListener("click", () => {
+      if (gameOver) return;
       selected = i;
       Array.from(optionsEl.children).forEach(b => {
         b.style.border = "";
@@ -263,89 +322,215 @@ function showQuestion(){
     });
     optionsEl.appendChild(btn);
   });
+  
   messageEl.textContent = "";
   progressEl.style.width = "100%";
-  timer = setInterval(updateTimer, 1000 / 60);
+  
+  // Iniciar nuevo temporizador
+  timer = setInterval(() => {
+    timeLeft -= 0.1;
+    const progressPercent = (timeLeft / 20) * 100;
+    progressEl.style.width = Math.max(0, progressPercent) + "%";
+    timerDisplay.textContent = "Tiempo: " + Math.ceil(timeLeft) + "s";
+    
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      timeOut();
+    }
+  }, 100);
 }
 
-function updateTimer(){
-  timeLeft -= 1/60;
-  progressEl.style.width = (timeLeft/20*100)+"%";
-  timerDisplay.textContent = "Tiempo: " + Math.ceil(timeLeft) + "s";
-  if(timeLeft<=0){
-    clearInterval(timer);
-    timeOut();
+function timeOut() {
+  if (gameOver) return;
+  
+  // Tiempo agotado cuenta como incorrecto
+  incorrectCount++;
+  new Audio('q.mp3').play();
+  showFloatingImage('8.png', 'left');
+  messageEl.textContent = "¡Tiempo agotado! 😞";
+  messageEl.style.color = "#ff0000";
+  
+  // Verificar si se perdió el juego
+  if (incorrectCount >= MAX_INCORRECT) {
+    gameOverScreen();
+    return;
   }
+  
+  current++;
+  setTimeout(() => {
+    messageEl.textContent = "";
+    messageEl.style.color = "";
+    showQuestion();
+  }, 2000);
 }
 
-function checkAnswer(){
+function checkAnswer() {
+  if (gameOver) return;
+  
+  if (selected === null) {
+    messageEl.textContent = "Selecciona una opción primero";
+    messageEl.style.color = "#ffcc00";
+    return;
+  }
+  
   clearInterval(timer);
   const q = questions[current];
-  if(selected === q.correct){
+  
+  if (selected === q.correct) {
+    // Respuesta correcta
     new Audio('o.mp3').play();
     streak++;
     totalCorrect++;
-    if(streak>0 && streak%3===0){
-      // Hide elements
-      timerDisplay.style.display = 'none';
-      questionEl.style.display = 'none';
-      optionsEl.style.display = 'none';
-      sendBtn.style.display = 'none';
-      progressEl.parentElement.style.display = 'none'; // Hide progress bar
-      // Show message big and centered on screen
-      messageEl.textContent = streakPhrases[Math.floor(Math.random()*streakPhrases.length)];
-      messageEl.style.position = 'fixed';
-      messageEl.style.top = '50%';
-      messageEl.style.left = '50%';
-      messageEl.style.transform = 'translate(-50%, -50%)';
-      messageEl.style.fontSize = '4rem';
-      messageEl.style.textAlign = 'center';
-      messageEl.style.zIndex = '20';
-      messageEl.style.animation = 'fadeIn 0.5s ease-in';
-      showFloatingImage('3.png', 'left');
-      streakCount++;
-      confetti({particleCount:800,spread:360,colors:['#00ff00','#00bfa5'],gravity:0.1,scalar:1.2});
-      // After 4 seconds, show next question
-      setTimeout(() => {
-        messageEl.textContent = "";
-        messageEl.style.position = '';
-        messageEl.style.top = '';
-        messageEl.style.left = '';
-        messageEl.style.transform = '';
-        messageEl.style.fontSize = '';
-        messageEl.style.textAlign = '';
-        messageEl.style.zIndex = '';
-        messageEl.style.animation = '';
-        // Show elements back
-        timerDisplay.style.display = '';
-        questionEl.style.display = '';
-        optionsEl.style.display = '';
-        sendBtn.style.display = '';
-        progressEl.parentElement.style.display = '';
-        current++;
-        totalCorrectDisplay.textContent = totalCorrect;
-        streakDisplay.textContent = streakCount;
-        showQuestion();
-      }, 4000);
-      return; // Exit early to avoid the general setTimeout
+    incorrectCount = 0; // Reiniciar contador de incorrectas
+    
+    if (streak > 0 && streak % 3 === 0) {
+      handleStreakBonus();
+      return;
     }
+    
     showFloatingImage('9.png', 'right');
     confetti({particleCount:500,spread:360,colors:['#00ff00','#00bfa5'],gravity:0.1,scalar:1.2});
+    messageEl.textContent = "¡Correcto! ✅";
+    messageEl.style.color = "#00ff00";
   } else {
+    // Respuesta incorrecta
     new Audio('q.mp3').play();
     showFloatingImage('8.png', 'left');
-    streak=0;
+    streak = 0;
+    incorrectCount++;
+    messageEl.textContent = "Incorrecto ❌";
+    messageEl.style.color = "#ff0000";
+    
+    // Verificar si se perdió el juego
+    if (incorrectCount >= MAX_INCORRECT) {
+      setTimeout(gameOverScreen, 1500);
+      return;
+    }
   }
+  
   current++;
   totalCorrectDisplay.textContent = totalCorrect;
   streakDisplay.textContent = streakCount;
+  
   setTimeout(() => {
     messageEl.textContent = "";
+    messageEl.style.color = "";
     showQuestion();
-  }, 5000);
+  }, 1500);
 }
 
-function showFloatingImage(src, side){
+function handleStreakBonus() {
+  // Ocultar elementos temporales
+  timerDisplay.style.display = 'none';
+  questionEl.style.display = 'none';
+  optionsEl.style.display = 'none';
+  sendBtn.style.display = 'none';
+  progressEl.parentElement.style.display = 'none';
+  
+  // Mostrar mensaje de racha
+  const phrase = streakPhrases[Math.floor(Math.random() * streakPhrases.length)];
+  messageEl.textContent = phrase;
+  messageEl.style.position = 'fixed';
+  messageEl.style.top = '50%';
+  messageEl.style.left = '50%';
+  messageEl.style.transform = 'translate(-50%, -50%)';
+  messageEl.style.fontSize = '4rem';
+  messageEl.style.textAlign = 'center';
+  messageEl.style.zIndex = '20';
+  messageEl.style.animation = 'fadeIn 0.5s ease-in';
+  messageEl.style.color = "#00ff00";
+  
+  showFloatingImage('3.png', 'left');
+  streakCount++;
+  confetti({particleCount:800,spread:360,colors:['#00ff00','#00bfa5'],gravity:0.1,scalar:1.2});
+  
+  // Continuar después de 3 segundos
+  setTimeout(() => {
+    messageEl.textContent = "";
+    messageEl.style.position = '';
+    messageEl.style.top = '';
+    messageEl.style.left = '';
+    messageEl.style.transform = '';
+    messageEl.style.fontSize = '';
+    messageEl.style.textAlign = '';
+    messageEl.style.zIndex = '';
+    messageEl.style.animation = '';
+    messageEl.style.color = "";
+    
+    // Mostrar elementos nuevamente
+    timerDisplay.style.display = '';
+    questionEl.style.display = '';
+    optionsEl.style.display = '';
+    sendBtn.style.display = '';
+    progressEl.parentElement.style.display = '';
+    
+    current++;
+    totalCorrectDisplay.textContent = totalCorrect;
+    streakDisplay.textContent = streakCount;
+    showQuestion();
+  }, 3000);
+}
+
+function gameOverScreen() {
+  gameOver = true;
+  clearInterval(timer);
+  
+  const gameOverDiv = document.createElement('div');
+  gameOverDiv.className = 'game-over';
+  gameOverDiv.innerHTML = `
+    <h2>¡GAME OVER!</h2>
+    <p>Has cometido ${MAX_INCORRECT} errores</p>
+    <p>Respuestas correctas: ${totalCorrect}</p>
+    <p>Rachas conseguidas: ${streakCount}</p>
+    <button onclick="restartGame()">Reiniciar Juego</button>
+  `;
+  
+  document.body.appendChild(gameOverDiv);
+  new Audio('q.mp3').play();
+}
+
+function restartGame() {
+  gameOver = false;
+  current = 0;
+  streak = 0;
+  totalCorrect = 0;
+  streakCount = 0;
+  incorrectCount = 0;
+  
+  const gameOverDiv = document.querySelector('.game-over');
+  if (gameOverDiv) {
+    document.body.removeChild(gameOverDiv);
+  }
+  
+  totalCorrectDisplay.textContent = totalCorrect;
+  streakDisplay.textContent = streakCount;
+  shuffle(questions);
+  showQuestion();
+}
+
+function endGame() {
+  // Todas las preguntas contestadas - Victoria
+  gameOver = true;
+  clearInterval(timer);
+  
+  const gameOverDiv = document.createElement('div');
+  gameOverDiv.className = 'game-over';
+  gameOverDiv.style.borderColor = '#00ff00';
+  gameOverDiv.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.5)';
+  gameOverDiv.innerHTML = `
+    <h2 style="color: #00ff00">¡FELICIDADES!</h2>
+    <p>Has completado todas las preguntas</p>
+    <p>Respuestas correctas: ${totalCorrect}/${questions.length}</p>
+    <p>Rachas conseguidas: ${streakCount}</p>
+    <button onclick="restartGame()">Jugar de Nuevo</button>
+  `;
+  
+  document.body.appendChild(gameOverDiv);
+  new Audio('o.mp3').play();
+  confetti({particleCount:1000,spread:360,colors:['#00ff00','#00bfa5','#ff0000','#ffcc00'],gravity:0.1,scalar:1.5});
+}
+
+function showFloatingImage(src, side) {
   const img = document.createElement('img');
   img.src = src;
   img.style.position = 'absolute';
@@ -358,7 +543,7 @@ function showFloatingImage(src, side){
   img.style.top = '50%';
   img.style.transform = 'translateY(-50%)';
 
-  if(side === 'right'){
+  if (side === 'right') {
     img.style.right = '20px';
   } else {
     img.style.left = '20px';
@@ -370,26 +555,6 @@ function showFloatingImage(src, side){
   }, 1000);
 }
 
-
-
-function timeOut(){
-  // Pasar a la siguiente pregunta sin game over
-  current++;
-  setTimeout(showQuestion, 500);
-}
-
-function endGame(){
-  // Reiniciar el juego al terminar todas las preguntas
-  current = 0;
-  streak = 0;
-  totalCorrect = 0;
-  streakCount = 0;
-  shuffle(questions);
-  showQuestion();
-}
-
-sendBtn.addEventListener("click", checkAnswer);
-
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -397,28 +562,23 @@ function shuffle(array) {
   }
 }
 
-// Barajar preguntas una sola vez al cargar la página
+// Event listeners
+sendBtn.addEventListener("click", checkAnswer);
+
+// Inicializar juego
 shuffle(questions);
-
-
-
-// Mostrar la primera pregunta (ya barajada)
 showQuestion();
 
-
-totalCorrectDisplay.textContent = totalCorrect;
-streakDisplay.textContent = streakCount;
-// Asegurar que el video se repita al terminar
+// Configurar video
 const bgVideo = document.getElementById("bgVideo");
 bgVideo.addEventListener('ended', function() {
   bgVideo.play();
 });
 
-// Enable sound on user interaction
-const video = document.getElementById("bgVideo");
+// Habilitar sonido
 function enableSound() {
-  video.muted = false;
-  video.volume = 0.5;
+  bgVideo.muted = false;
+  bgVideo.volume = 0.5;
   document.removeEventListener("click", enableSound);
   document.removeEventListener("keydown", enableSound);
 }
